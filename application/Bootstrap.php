@@ -12,4 +12,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $view = new Zend_View();
         return $view;
     }
+
+    protected function _initCore() {
+        Zend_Loader_Autoloader::getInstance()->registerNamespace('Core');
+    }
 }
