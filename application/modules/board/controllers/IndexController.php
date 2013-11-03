@@ -1,6 +1,6 @@
 <?php
 
-class Board_IndexController extends Zend_Controller_Action
+class Board_IndexController extends Core_Controller_Abstract
 {
 
     public function init()
@@ -11,6 +11,7 @@ class Board_IndexController extends Zend_Controller_Action
     public function indexAction()
     {
         $model = new Board_Model_Folder(Zend_Controller_Front::getInstance());
-        $this->view->dirs = $model->readDir('D:\\');
+        $dirs = $model->readDir('D:\\');
+        $this->returnJson($dirs);
     }
 }
