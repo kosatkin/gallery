@@ -5,13 +5,13 @@ class Board_Model_Folder extends Core_Model_Abstract {
     const TIME_FORMAT       = 'Y-m-d H:i:s';
 
     public function readDir($path) {
-        if(!realpath($path)) {
+        try {
+            $directoryIterator = new DirectoryIterator($path);
+        } catch(Exception $e) {
             throw new Board_Model_Exception(Board_Model_Exception::INVALID_PATH);
         }
 
-        $directoryIterator = new DirectoryIterator($path);
         $result = array();
-
         /**
          * @var $element DirectoryIterator
          */
