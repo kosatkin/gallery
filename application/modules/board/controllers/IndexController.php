@@ -8,10 +8,13 @@ class Board_IndexController extends Core_Controller_Abstract
         /* Initialize action controller here */
     }
 
-    public function indexAction()
+    public function listAction()
     {
         $model = new Board_Model_Folder(Zend_Controller_Front::getInstance());
-        $dirs = $model->readDir('d:\\Photo\\');
-        $this->returnJson($dirs);
+        $dirs = $model->readDir('d:\\www\\l.gallery\\public\\files\\Photo');
+        $this->returnJson(array(
+            'status'    => 'OK',
+            'data'      =>  $dirs,
+        ));
     }
 }
