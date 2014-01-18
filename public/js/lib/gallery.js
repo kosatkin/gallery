@@ -2,17 +2,22 @@ var Gallery = function(options){
     this.settings = $.extend(true, {}, {
         containerId : null,
         url : '/board/index/list',
-        template : ''
+        template : '',
+        margin : 10
 
     }, options || {});
 
     this.init();
 };
 
+Gallery.prototype.container = null;
 Gallery.prototype.dirStack = [];
 Gallery.prototype.settings = {};
 
+Gallery.prototype.col = [];
+
 Gallery.prototype.init = function(){
+    this.container = $('#' + this.settings.containerId);
     this.load();
 };
 
@@ -26,6 +31,8 @@ Gallery.prototype.load = function() {
         .success(function(response) {
             if(typeof response.status != "undefined") {
                 if(response.status == 'OK') {
+                    
+                    self.col = [];
                     self.render(response.data);
                 }
             }
@@ -43,13 +50,21 @@ Gallery.prototype.render = function(data) {
     var col = [];
     var margin = 10;
 
-    var container = $('#' + this.settings.containerId);
-    container.html('');
+    this.container.html('');
 
-    for(var i = 0; i < data.length; i++) {
-        var row = data[i];
-        if(row.path == null) continue;
+    this.loadImg(data, 0);
 
+};
+
+Gallery.prototype.loadImg = function(data, index) {
+    var self = this;
+
+    var window_width = $(window).width() - 80;
+    var max_col = Math.floor(window_width/210);
+    var offset_left = Math.floor((window_width - 210*max_col + 80) / 2);
+
+    var row = data[index];
+    if(row && row.path != null) {
         var el = $(this.settings.template);
         el.find('.title').text(row.filename);
 
@@ -61,35 +76,42 @@ Gallery.prototype.render = function(data) {
                 // loading folder
                 self.load();
             });
+
+            if(index < data.length)
+                this.loadImg(data, index+1);
         } else {
-            el.find('.image img').attr(
-                "src", row.path
-            );
+            el.find('.image img').bind('load', {index : index, data : data}, function(event) {
+
+                var el_height=el.height();
+                var min_t = 0;
+                for(var j = 0; j < max_col; j++ ) {
+                    if (typeof self.col[j] == "undefined") {
+                        self.col.push(0);
+                        min_t = j;
+                        break;
+                    }
+
+                    if (self.col[min_t] > self.col[j])
+                        min_t = j;
+                }
+
+                el.css({
+                    "position" : "absolute",
+                    "top" : self.col[min_t] + self.settings.margin,
+                    "left" : min_t*el.width() + self.settings.margin*min_t + offset_left
+                });
+
+                self.col[min_t] += el_height + self.settings.margin;
+
+                if(event.data.index < event.data.data.length)
+                    self.loadImg(event.data.data, event.data.index+1);
+
+            }).attr("src", row.path);
+
             el.find('.property').text('Size: '+row.size);
         }
 
-        container.append(el);
-
-        var el_height=el.height();
-        var min_t = 0;
-        for(var j = 0; j < max_col; j++ ) {
-            if (typeof col[j] == "undefined") {
-                col.push(0);
-                min_t = j;
-                break;
-            }
-
-            if (col[min_t] > col[j])
-                min_t = j;
-        }
-
-        el.css({
-            "position" : "absolute",
-            "top" : col[min_t] + margin,
-            "left" : min_t*el.width() + margin*min_t + offset_left
-        });
-
-        col[min_t] += el_height + margin;
+        this.container.append(el);
     }
 };
 
