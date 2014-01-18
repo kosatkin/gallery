@@ -3,11 +3,11 @@
 abstract class Core_Model_Abstract {
 
     /**
-     * @var Zend_Controller_Front
+     * @var Zend_Config
      */
-    protected $front;
+    protected $config;
 
-    public function __construct(Zend_Controller_Front $front) {
-        $this->front = $front;
+    public function __construct() {
+        $this->config = Zend_Registry::get('config');
     }
 }

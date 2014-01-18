@@ -10,8 +10,10 @@ class Board_IndexController extends Core_Controller_Abstract
 
     public function listAction()
     {
-        $model = new Board_Model_Folder(Zend_Controller_Front::getInstance());
-        $dirs = $model->readDir('d:\\www\\l.gallery\\public\\files\\Photo');
+        $model = new Board_Model_Folder();
+
+        $path = $this->getRequest()->getParam('path');
+        $dirs = $model->readDir($path);
         $this->returnJson(array(
             'status'    => 'OK',
             'data'      =>  $dirs,

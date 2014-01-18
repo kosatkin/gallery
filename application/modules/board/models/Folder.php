@@ -6,12 +6,10 @@ class Board_Model_Folder extends Core_Model_Abstract {
 
     public function readDir($path) {
         try {
-            $directoryIterator = new DirectoryIterator($path);
+            $directoryIterator = new DirectoryIterator($this->getRealPath($path));
         } catch(Exception $e) {
             throw new Board_Model_Exception(Board_Model_Exception::INVALID_PATH);
         }
-
-        $basePath = 'd:\\www\\l.gallery\\public\\files\\';
 
         $result = array();
         /**
@@ -19,14 +17,12 @@ class Board_Model_Folder extends Core_Model_Abstract {
          */
         foreach($directoryIterator as $element) {
             if(!$element->isDot()) {
-
                 $result[] = array(
                     'isDir'         => $element->isDir(),
 
                     'filename'      => $element->getFilename(),
-                    'path'          => $element->getPath(),
+                    'path'          => $this->getPublicPath($element->getPathname()),
                     'size'          => $element->getSize(),
-                    'public'        => '/files/' . substr($element->getPath(), strlen($basePath)) . '/',
 
                     'creationTime'  => date(self::TIME_FORMAT, $element->getCTime()),
                     'modifyTime'    => date(self::TIME_FORMAT, $element->getMTime()),
@@ -35,6 +31,16 @@ class Board_Model_Folder extends Core_Model_Abstract {
             }
         }
         return $result;
+    }
+
+    protected function getRealPath($path) {
+        return sprintf('%s%s%s', rtrim($this->config['path']['base'], '/\\'), DIRECTORY_SEPARATOR, trim($path, '/\\'));
+    }
+
+    protected function getPublicPath($path) {
+        $basePath = $this->config['path']['base'];
+        $subPath = str_replace('\\', '/', substr($path, strlen($basePath)));
+        return sprintf('%s%s%s', rtrim($this->config['path']['public'], '/\\'), '/', trim($subPath, '/\\'));
     }
 
 }
