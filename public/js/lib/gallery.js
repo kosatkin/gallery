@@ -3,7 +3,11 @@ var Gallery = function(options){
         containerId : null,
         url : '/board/index/list',
         template : '',
-        margin : 10
+        margin : 10,
+
+        cssClasses : {
+            image : 'image'
+        }
 
     }, options || {});
 
@@ -64,7 +68,7 @@ Gallery.prototype.loadImg = function(data, index) {
     var offset_left = Math.floor((window_width - 210*max_col + 80) / 2);
 
     var row = data[index];
-    if(row && row.path != null) {
+    if(row && typeof row.path != "undefined" && row.path != null) {
         var el = $(this.settings.template);
         el.find('.title').text(row.filename);
 
@@ -80,7 +84,7 @@ Gallery.prototype.loadImg = function(data, index) {
             if(index < data.length)
                 this.loadImg(data, index+1);
         } else {
-            el.find('.image img').bind('load', {index : index, data : data}, function(event) {
+            el.find('.' + this.settings.cssClasses.image + ' img').bind('load', {index : index, data : data}, function(event) {
 
                 var el_height=el.height();
                 var min_t = 0;
